@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Прослушивание целых сур из Корана</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-image: url(1.avif);
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0;
+    padding: 20px;
+    color: #ffffff;
+  }
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  #azanTimeContainer {
+    max-width: 500px;
+    margin: 0 auto 30px auto;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  #azanTimeContainer h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 22px;
+  }
+  #azanTimes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+  .prayer {
+    width: 45%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+  }
+  #surahInfo {
+    text-align: center;
+    margin-top: 20px;
+  }
+  #surahName {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: none;
+  }
+  #audioPlayer {
+    width: 100%;
+    margin-top: 30px;
+  }
+  /* Стиль для красивого футера */
+  footer {
+    margin-top: 50px;
+    padding: 15px 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    color: #eee;
+    border-radius: 8px;
+  }
+  footer span {
+    font-weight: bold;
+    color: #ffd700; /* золотой цвет */
+  }
+</style>
+</head>
+<body>
+
+<h1>Прослушайте целую суру из Корана</h1>
+
+<!-- Блок времени намаза -->
+<div id="azanTimeContainer">
+  <h2>Время намазов Назрань</h2>
+  <div id="azanTimes">
+    <div class="prayer">Фаджр: <span id="fajr">--:--</span></div>
+    <div class="prayer">Зухр: <span id="dhuhr">--:--</span></div>
+    <div class="prayer">Аср: <span id="asr">--:--</span></div>
+    <div class="prayer">Магриб: <span id="maghrib">--:--</span></div>
+    <div class="prayer">Иша: <span id="isha">--:--</span></div>
+  </div>
+</div>
+
+<label for="surahSelect">Выберите суру:</label>
+<select id="surahSelect">
+  <option value="1" data-name="Аль-Фатиха" data-audio="Mishary_001.mp3">Аль-Фатиха</option>
+  <option value="2" data-name="Аль-Бакара" data-audio="Mishary_002.mp3">Аль-Бакара</option>
+  <option value="3" data-name="Аль-Имран" data-audio="Mishary_003.mp3">Аль-Имран</option>
+  <option value="4" data-name="Ан-Ниса" data-audio="Mishary_004.mp3">Ан-Ниса</option>
+  <option value="5" data-name="Аль-Маида" data-audio="Mishary_005.mp3">Аль-Маида</option>
+  <option value="6" data-name="Аль-Анам" data-audio="Mishary_006.mp3">Аль-Анам</option>
+  <option value="7" data-name="Аль-Араф" data-audio="Mishary_007.mp3">Аль-Араф</option>
+  <option value="8" data-name="Аль-Анфаль" data-audio="Mishary_008.mp3">Аль-Анфаль</option>
+</select>
+
+<div id="surahInfo">
+  <h2 id="surahName">Аль-Фатиха</h2>
+</div>
+
+<audio id="audioPlayer" controls src=""></audio>
+
+<script>
+  const surahSelect = document.getElementById('surahSelect');
+  const surahName = document.getElementById('surahName');
+  const audioPlayer = document.getElementById('audioPlayer');
+
+  function updateSurah() {
+    const selectedOption = surahSelect.options[surahSelect.selectedIndex];
+    const name = selectedOption.getAttribute('data-name');
+    const audioSrc = selectedOption.getAttribute('data-audio');
+    surahName.textContent = name;
+    audioPlayer.src = audioSrc;
+    audioPlayer.play();
+  }
+
+  surahSelect.addEventListener('change', updateSurah);
+  window.onload = () => {
+    updateSurah();
+    fetchPrayerTimes();
+  };
+
+  // Функция получения времени намазов
+  async function fetchPrayerTimes() {
+    try {
+      const response = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Nazran&country=Russia&method=2');
+      const data = await response.json();
+      if (data.code === 200) {
+        const timings = data.data.timings;
+        document.getElementById('fajr').textContent = timings.Fajr;
+        document.getElementById('dhuhr').textContent = timings.Dhuhr;
+        document.getElementById('asr').textContent = timings.Asr;
+        document.getElementById('maghrib').textContent = timings.Maghrib;
+        document.getElementById('isha').textContent = timings.Isha;
+      }
+    } catch (error) {
+      console.error('Ошибка при получении времени намаза:', error);
+    }
+  }
+</script>
+
+<!-- Стильная подпись в конце -->
+<footer>
+  <p>Сайт создан и управляется пользователем <span>MUSIEV</span></p>
+</footer>
+
+</body>
+</html>
